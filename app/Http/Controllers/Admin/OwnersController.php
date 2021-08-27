@@ -14,12 +14,7 @@ use App\Models\Shop;
 
 class OwnersController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-
+    // ログインしているかの検証を初期化時に必ず確認するため
     public function __construct()
     {
         $this->middleware('auth:admin');
@@ -114,7 +109,6 @@ class OwnersController extends Controller
         return redirect()
         ->route('admin.owners.index')
         ->with(['message' =>'オーナー情報を更新しました', 'status' => 'info']);
-
 
     }
 
