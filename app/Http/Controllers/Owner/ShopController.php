@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Shop;
+use Illuminate\Support\Facades\Storage;
 
 class ShopController extends Controller
 {
@@ -32,29 +33,27 @@ class ShopController extends Controller
 
     public function index()
     {
-        $ownerId = Auth::id();
-        $shops = Shop::where('owner_id', $ownerId)->get();
+        $shops = Shop::where('owner_id', Auth::id())->get();
 
         return view('owner.shops.index', compact('shops'));
     }
 
     public function edit($id)
     {
+        $shop = Shop::findOrFail($id);
+        
+        return view('owner.shops.edit', compact('shop'));
 
     }
 
     public function update(Request $request, $id)
     {
-        $owner = Owner::findOrFail($id);
+        $imageFile = $request->image;
+        if (!is_null($imageFile) && $imageFile->isValid()) {
+            Storage::putFile('public/shops', $imageFile);
+        }
 
-        $owner->name = $request->name;
-        $owner->email = $request->email;
-        $owner->password = Hash::make($request->password);
-        $owner->save();
-
-        return redirect()
-        ->route('admin.owners.index')
-        ->with(['message' =>'オーナー情報を更新しました', 'status' => 'info']);
+        return redirect()->route('owner.shops.index');
 
     }
 
