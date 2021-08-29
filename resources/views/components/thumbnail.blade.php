@@ -15,3 +15,4 @@
       <img src="{{asset($path.$filename)}}" alt="">
   @endif
 </div>
+
