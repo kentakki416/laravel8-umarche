@@ -58,7 +58,7 @@ class CategorySeeder extends Seeder
             [
                 'name' => 'アウター',
                 'sort_order' => 6,
-                'primary_category_id' => 1,
+                'primary_category_id' => 2,
             ],
             [
                 'name' => '花束',
