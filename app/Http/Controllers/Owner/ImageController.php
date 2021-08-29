@@ -33,11 +33,7 @@ class ImageController extends Controller
             
             });
         }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $images = Image::where('owner_id', Auth::id())->orderBy('updated_at', 'desc')->paginate(20);
@@ -45,22 +41,13 @@ class ImageController extends Controller
         return view('owner.images.index', compact('images'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create()
     {
         return view('owner.images.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(UploadImageRequest $request)
     {
         //複数画像がアップロードされる可能性があるのでfile('files')で配列として格納
@@ -101,12 +88,7 @@ class ImageController extends Controller
 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
             $image = Image::findOrFail($id);
