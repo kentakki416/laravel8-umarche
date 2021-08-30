@@ -9,6 +9,27 @@ use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth:users');
+
+        //shopControllerにのみ働くmiddlewareを定義
+        $this->middleware(function($request, $next) {
+            $id = $request->route()->parameter('product'); 
+            // if(!is_null($id)) { 
+            //     $productsOwnerId = Product::findOrFail($id)->shop->owner->id;
+            //     $productId = (int)$productsOwnerId; //キャスト 文字列→数値
+            //     if ($productId !== Auth::id()) {
+            //         abort(404);
+            //     }
+            // }
+            return $next($request);
+        
+        });
+    }
+
+
     public function index()
     {
         $stocks = DB::table('t_stocks')->select('product_id', DB::raw('sum(quantity) as quantity'))
@@ -32,5 +53,12 @@ class ItemController extends Controller
 
         // $products = Product::all();
         return view('user.index', compact('products'));
+    }
+
+    public function show($id)
+    {
+        $product = product::findOrFail($id);
+
+        return view('user.show', compact('product'));
     }
 }

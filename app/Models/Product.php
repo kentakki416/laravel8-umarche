@@ -48,7 +48,7 @@ class Product extends Model
 
     public function imageThird()
     {
-        return $this->belongsTo(Image::class, 'imag31', 'id');
+        return $this->belongsTo(Image::class, 'image3', 'id');
     }
 
     public function imageFourth()
