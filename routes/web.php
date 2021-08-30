@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\User\ItemController;
 
 
 /*
@@ -18,9 +19,13 @@ Route::get('/', function () {
     return view('user.welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('user.dashboard');
-})->middleware(['auth:users'])->name('dashboard');
+Route::middleware('auth:users')->group(function() {
+    Route::get('/', [ItemController::class, 'index'])->name('items.index');
+});
+
+// Route::get('/dashboard', function () {
+//     return view('user.dashboard');
+// })->middleware(['auth:users'])->name('dashboard');
 
 
 require __DIR__.'/auth.php';
