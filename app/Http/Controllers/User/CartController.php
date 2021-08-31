@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Stock;
 
 class CartController extends Controller
 {
@@ -62,16 +63,35 @@ class CartController extends Controller
         $lineItems = [];
 
         foreach ($products as $product){
-            $lineItem = [
-                'name' => $product->name,
-                'description' => $product->information,
-                'amount' => $product->price,
-                'currency' => 'jpy',
-                'quantity' => $product->pivot->quantity
-            ];
-
-            array_push($lineItems, $lineItem);
+            $quantity = '';
+            $quantity = Stock::where('product_id', $product->id)->sum('quantity');
+            
+            // 決済前に在庫チェック
+            if($product->pivot->quantity > $quantity){
+                return redirect()->route('user.cart.index')->with(['message' => '在庫数が不足しています。もう一度ご確認ください', 'status' => 'alert']);
+            } else {
+                $lineItem = [
+                    'name' => $product->name,
+                    'description' => $product->information,
+                    'amount' => $product->price,
+                    'currency' => 'jpy',
+                    'quantity' => $product->pivot->quantity
+                ];
+                array_push($lineItems, $lineItem);
+            }
         }
+
+        //決済前に在庫数を減らす
+        foreach($products as $product){
+            Stock::create([
+                'product_id' =>$product->id,
+                'type' => \Constant::PRODUCT_LIST['reduce'],
+                'quantity' => $product->pivot->quantity * -1,
+            ]);
+        }
+
+        dd('test');
+
         \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
 
         $session = \Stripe\Checkout\Session::create([
@@ -86,6 +106,6 @@ class CartController extends Controller
 
         $publicKey = env('STRIPE_PUBLIC_KEY');
 
-        return view('user.checkout', compact('sessoin', 'publicKey'));
+        return view('user.checkout', compact('session', 'publicKey'));
     }
 }
