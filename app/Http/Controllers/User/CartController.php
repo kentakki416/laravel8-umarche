@@ -24,6 +24,7 @@ class CartController extends Controller
         return view('user.cart', compact('products', 'totalPrice'));
     }
 
+
     public function add(Request $request)
     {
         $itemInCart = Cart::where('product_id', $request->product_id)->where('user_id', Auth::id())->first();
@@ -42,10 +43,49 @@ class CartController extends Controller
         return redirect()->route('user.cart.index');
     }
 
+
     public function delete($id)
     {
         Cart::where('product_id', $id)->where('user_id', Auth::id())->delete();
 
         return redirect()->route('user.cart.index');
+    }
+
+
+    public function checkout()
+    {
+        // stripeによる決済処理
+        //カートに入っている全ての商品情報を取得
+        $user = User::findOrFail(Auth::id());
+        $products = $user->products;
+
+        $lineItems = [];
+
+        foreach ($products as $product){
+            $lineItem = [
+                'name' => $product->name,
+                'description' => $product->information,
+                'amount' => $product->price,
+                'currency' => 'jpy',
+                'quantity' => $product->pivot->quantity
+            ];
+
+            array_push($lineItems, $lineItem);
+        }
+        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+
+        $session = \Stripe\Checkout\Session::create([
+            'payment_method_types' => [
+                'card',
+            ],
+            'line_items' => [$lineItems],
+            'mode' => 'payment',
+            'success_url' => route('user.items.index'),
+            'cancel_url' => route('user.cart.index'),
+        ]);
+
+        $publicKey = env('STRIPE_PUBLIC_KEY');
+
+        return view('user.checkout', compact('sessoin', 'publicKey'));
     }
 }
