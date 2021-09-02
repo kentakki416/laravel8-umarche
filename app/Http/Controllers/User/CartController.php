@@ -8,6 +8,10 @@ use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Stock;
+use App\Services\CartService;
+use App\Jobs\SendThanksMail;
+use App\Jobs\SendOrderedMail;
+
 
 class CartController extends Controller
 {
@@ -55,6 +59,7 @@ class CartController extends Controller
 
     public function checkout()
     {
+
         // stripeによる決済処理
         //カートに入っている全ての商品情報を取得
         $user = User::findOrFail(Auth::id());
@@ -110,6 +115,18 @@ class CartController extends Controller
 
     public function success() 
     {
+
+             ////
+        $items = Cart::where('user_id', Auth::id())->get();
+        $products = CartService::getItemsInCart($items);
+        $user = User::findOrFail(Auth::id());
+        SendThanksMail::dispatch($products, $user);
+        foreach ($products as $product)
+        {
+            SendOrderedMail::dispatch($product, $user);
+        }
+        
+             ////
         Cart::where('user_id', Auth::id())->delete();
 
         return redirect()->route('user.items.index')->with(['message' => '購入が完了しました', 'status' => 'info']);

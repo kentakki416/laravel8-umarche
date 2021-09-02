@@ -41,7 +41,7 @@ class ItemController extends Controller
         // Mail::to('test@example.com')->send(new TestMail());
 
         // 非同期的に送信
-        SendThanksMail::dispatch();
+        // SendThanksMail::dispatch();
 
         $products = Product::availableItems()->selectCategory($request->category ?? '0')
         ->searchKeyword($request->keyword)->sortOrder($request->sort)->paginate($request->pagination ?? '20');
