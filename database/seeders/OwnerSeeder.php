@@ -17,12 +17,14 @@ class OwnerSeeder extends Seeder
     {
         DB::table('owners')->insert([
             [
+                'id' => 1,
                 'name' => 'test',
                 'email' => 'test2@test.com',
                 'password' => Hash::make('password123'),
                 'created_at' => '2021/01/01 11:11:11',
             ],
             [
+                'id' => 2,
                 'name' => 'test',
                 'email' => 'test3@test.com',
                 'password' => Hash::make('password123'),
